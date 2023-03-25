@@ -2,6 +2,9 @@ class Controller:
     def __init__(self, model, view):
         self.model = model
         self.view = view
+        # set the controller to view
+        self.view.set_controller(self)
+        self.view.table_frame.show_table()
     
     def show_all_data_table(self):
         rows = self.model.select_all_in_db()

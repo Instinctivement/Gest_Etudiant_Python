@@ -19,18 +19,19 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(0, weight=1)
 
         # create a model
-        model = DB()
+        model = DB() 
 
         # create a view and place it on the root window
         view = View(self)
         view.grid(row=0, column=0, sticky="nsew")
 
         # create a controller
-        controller = Controller(model, view)
+        self.controller = Controller(model, view)
 
         # set the controller to view
-        view.set_controller(controller)
-        #view.show_table()
+        #view.set_controller(controller)
+        #view.table_frame.show_table()
+        
 
 
 if __name__ == "__main__":
