@@ -10,7 +10,7 @@ customtkinter.set_default_color_theme("green")  # Themes: "blue" (standard), "gr
 
 class App(customtkinter.CTk):
     def __init__(self):
-        super().__init__()
+        super().__init__() 
         
         # configure window
         self.title("OMG | Etudiant")
