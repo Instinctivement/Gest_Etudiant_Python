@@ -1,43 +1,33 @@
 from tkinter import *
+import tkinter as tk
+from tkinter import messagebox
+import json
+import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
-import schooling
-
-class AddStudent_UI(ttk.Toplevel):
-    def __init__(self, controller):
+class AddYears_UI(tk.Toplevel):
+    def __init__(self):
         super().__init__()
-        self.title('Ajout')
-        self.geometry('400x500')
-        self.schooling = schooling.Schooling()
-        
-        # set the controller 
-        self.controller = controller
+        self.title('Ajouter un niveau')
+        self.geometry('400x300')
         
         # form variables
-        self.firstName = ttk.StringVar()
-        self.secondName = ttk.StringVar()
-        self.birthday = ttk.StringVar()
         self.academicYear = ttk.StringVar()
-        self.level = ttk.StringVar()
-        self.comment = ttk.StringVar()
         
         # register the validation callback
         self.digit_func = self.register(self.validate_number)
         self.alpha_func = self.register(self.validate_alpha)
 
         # form header
-        hdr_txt = "Ajout d'un nouvel étudiant" 
+        hdr_txt = "Ajouter un nouveau niveau" 
         hdr = ttk.Label(master=self, text=hdr_txt, width=50)
         hdr.pack(fill=X, pady=10)
 
         # form entries
-        self.create_form_entry("Prenom", self.firstName, self.alpha_func)
-        self.create_form_entry("Nom", self.secondName, self.alpha_func)
-        self.birthday = self.create_form_entry_date("Date de naissance")
-        self.create_form_entry_select("Année académique", self.schooling.academic_year, self.academicYear)
-        self.create_form_entry_select("Niveau", self.schooling.level, self.level)
-        self.create_form_entry("Commentaire", self.comment, self.alpha_func)
+        list_level = ["CPI-1","CPI-2","IATIC-3", "IATIC-4", "IATIC-5"]
+        self.create_form_entry_select("Niveau", list_level)
+        self.create_form_entry("Année", self.academicYear, self.alpha_func)
         self.create_buttonbox()
 
     def validate_number(self, x) -> bool:
@@ -65,7 +55,7 @@ class AddStudent_UI(ttk.Toplevel):
 
         lbl = ttk.Label(master=container, text=label.title(), width=20)
         lbl.pack(side=LEFT, padx=10)
- 
+
         ent = ttk.Entry(master=container, textvariable=variable, validate="focus", validatecommand=(valid_function, '%P'))
         ent.pack(side=LEFT, padx=10, fill=X, expand=YES)
         
@@ -81,14 +71,14 @@ class AddStudent_UI(ttk.Toplevel):
         return ent
     
     # Template of select data
-    def create_form_entry_select(self, label, val, var):
-        container = ttk.Frame(self) 
+    def create_form_entry_select(self, label, val):
+        container = ttk.Frame(self)
         container.pack(fill=X, expand=YES, pady=5)
 
         lbl = ttk.Label(master=container, text=label.title(), width=20)
         lbl.pack(side=LEFT, padx=10)
 
-        ent = ttk.Combobox(master=container, values=val, textvariable=var)
+        ent = ttk.Combobox(master=container, values=val)
         ent.pack(side=LEFT, padx=10, fill=X, expand=YES)
         return ent
 
@@ -100,7 +90,7 @@ class AddStudent_UI(ttk.Toplevel):
         sub_btn = ttk.Button(
             master=container,
             text="Envoyer",
-            command=self.add_student,
+            command=self.on_submit,
             bootstyle=SUCCESS,
             width=12,
         )
@@ -116,21 +106,13 @@ class AddStudent_UI(ttk.Toplevel):
         )
         cnl_btn.pack(side=RIGHT, padx=5)
 
-    def add_student(self):
-        """Appelée lorsque le bouton d'ajout est cliqué"""
-        student_data = {
-            "firstName": self.firstName.get(),
-            "secondName": self.secondName.get(),
-            "birthday": self.birthday.entry.get(),
-            "academicYear": self.academicYear.get(),
-            "level": self.level.get(),
-            "comment": self.comment.get()
-        }
-        if self.controller:
-            self.controller.add_student(student_data)
-            
+    def on_submit(self):
+        """Print the contents to console and return the values."""
+        infos = {}
+        infos["academicYear"] = self.academicYear.get()
+        print(json.dumps(infos, indent=4))
+        self.on_cancel()
+       
     def on_cancel(self):
         """Cancel all input."""
-        self.firstName.set("")
-        self.secondName.set("")
-        self.comment.set("")
+        self.academicYear.set("")

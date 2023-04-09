@@ -1,18 +1,19 @@
 from tkinter import *
-from tkinter import ttk
-from tkinter import messagebox
-import customtkinter
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
+import json
 
 
-class Profile(customtkinter.CTkFrame):
+class Profile(ttk.Frame):
     def __init__(self, master, table, **kwargs):
         super().__init__(master, **kwargs)
         
         # access App attributes
         self.table_instance = table
+        self.controller = None
         
         #creating custom frame
-        self.frame=customtkinter.CTkFrame(master=self, width=320, height=360, corner_radius=15)
+        self.frame=ttk.Frame(master=self, width=320, height=360)
         self.frame.pack(pady=20, padx=16, fill="both", expand=True)
         
         # configure grid layout (4x4)
@@ -20,61 +21,94 @@ class Profile(customtkinter.CTkFrame):
         self.frame.grid_columnconfigure(1, weight=1)
 
         self.show_userDataEntry()
+        self.show_modify_zone()
         
-
+    def set_controller(self, controller):
+        """
+        Set the controller
+        :param controller:
+        :return:
+        """
+        self.controller = controller
         #User data Section 
     
     def show_userDataEntry(self):
-        title=customtkinter.CTkLabel(self.frame, text="Détailles",font=customtkinter.CTkFont('Century Gothic',size=20, weight="bold"))
-        title.grid(row=0, column=0, padx=16, pady=(40, 30), sticky="nsw")
+        info_frame = ttk.Labelframe(
+            master=self.frame,
+            text="Zone d'Informations statiques",
+            padding=(20, 5)
+        )
+        info_frame.pack(fill=BOTH, expand=YES, pady=10)
         
+       
         # First row
-        self.create_form_entry("Prenom", "Entrer prenom", 1, self.table_instance.firstName)
-        self.create_form_entry("Nom", "Entrer nom", 2, self.table_instance.secondName)
-        self.create_form_entry("Date de naissance", "Date de naissance", 3, self.table_instance.birthday)
-        self.create_form_entry("Année académique", "Année académique", 4, self.table_instance.academicYear)
-        self.create_form_entry("Niveau", "Niveau", 5, self.table_instance.level)
-        self.create_form_entry("Semestre-1", "Semestre-1", 6, self.table_instance.sem_one)
-        self.create_form_entry("Semestre-2", "Semestre-2", 7, self.table_instance.sem_two)
-        self.create_form_entry("Générale", "Générale", 8, self.table_instance.general)        
+        self.create_form_entry(info_frame,"Prenom", self.table_instance.firstName)
+        self.create_form_entry(info_frame,"Nom", self.table_instance.secondName)
+        self.create_form_entry(info_frame,"Date de naissance", self.table_instance.birthday)
+        self.create_form_entry(info_frame,"Année académique", self.table_instance.academicYear)
+        self.create_form_entry(info_frame,"Niveau", self.table_instance.level)
         
-        lbl = customtkinter.CTkLabel(self.frame, text="Commentaire", font=customtkinter.CTkFont('Century Gothic',16))
-        lbl.grid(row=9, column=0, padx=(16, 16), pady=(0, 20), sticky="snw")
-        text_1 = customtkinter.CTkTextbox(self.frame, width=200, height=70)
-        text_1.grid(row=9, column=1, padx=(0, 16), pady=(0, 10), sticky="sne")
-        #update_btn = Button(text="Update", command=self.update_student)
-        #add_btn = Button(text="Add", command=self.add_student)
-        #delete_btn = Button(text="Delete", command=self.delete_student)
-
-        #update_btn.grid(row=4, column=0, padx=5, pady=3)
-        #add_btn.grid(row=4, column=1, padx=5, pady=3)
-        #delete_btn.grid(row=4, column=2, padx=5, pady=3)
+    def show_modify_zone(self):
+        modify_frame = ttk.Labelframe(
+            master=self.frame,
+            text='Zone de modification',
+            padding=(20, 5)
+        )
+        modify_frame.pack(fill=BOTH, expand=YES, pady=10)
+                
+        self.create_form_entry(modify_frame,"Semestre-1", self.table_instance.sem_one)
+        self.create_form_entry(modify_frame,"Semestre-2", self.table_instance.sem_two)
+        self.create_form_entry(modify_frame,"Générale", self.table_instance.general)        
+        self.create_form_entry(modify_frame,"Commentaire", self.table_instance.comment)        
+        self.create_buttonbox(modify_frame)
         
-    def create_form_entry(self, label, myplaceholder, row, variable):
+    def create_form_entry(self, parent, label, variable):
+        container = ttk.Frame(parent)
+        container.pack(fill=X, expand=YES, pady=5)
 
-        lbl = customtkinter.CTkLabel(self.frame, text=label.title(), font=customtkinter.CTkFont('Century Gothic',16))
-        lbl.grid(row=row, column=0, padx=(16, 16), pady=(0, 20), sticky="snw")
+        lbl = ttk.Label(container, text=label.title(), width=20)
+        lbl.pack(side=LEFT, padx=(5,10))
 
-        ent = customtkinter.CTkEntry(self.frame, width=200, textvariable=variable, placeholder_text=myplaceholder)
-        ent.grid(row=row, column=1, padx=(0, 16), pady=(0, 10), sticky="sne")
+        ent = ttk.Entry(container, width=20, textvariable=variable)
+        ent.pack(side=LEFT, fill=X, expand=YES, padx=(0,5))
         
         return ent
     
-    # Template of select data
-    def create_form_entry_select(self,  parent, label, row, col, val, variable):
-        lbl = ttk.Label(master=parent, text=label.title(), width=42)
-        lbl.grid(row=row, column=col)
+    def create_buttonbox(self, parent):
+        """Create the application buttonbox"""
+        container = ttk.Frame(parent)
+        container.pack(fill=X, expand=YES, pady=(10, 20), padx=16)
 
-        ent = ttk.Combobox(master=parent, values=val, width=42)
-        ent.grid(row=row+1, column=col)
-        return ent
-    
-    # Template of input date
-    def create_form_entry_date(self,  parent, label, row, col, variable):
-        lbl = ttk.Label(master=parent, text=label.title(), width=42)
-        lbl.grid(row=row, column=col)
+        sub_btn = ttk.Button(
+            master=container,
+            text="Modifier",
+            command=self.modify,
+            bootstyle=PRIMARY,
+            width=12,
+        )
+        sub_btn.pack(side=LEFT, padx=5)
+        sub_btn.focus_set()
 
-        ent = ttk.DateEntry(master=parent, width=42)
-        ent.grid(row=row+1, column=col)
-        return ent
+        cnl_btn = ttk.Button(
+            master=container,
+            text="Supprimer",
+            command=self.delete,
+            bootstyle=DANGER,
+            width=12,
+        )
+        cnl_btn.pack(side=RIGHT, padx=5)
     
+    def modify(self):
+        student_data = (
+            self.table_instance.sem_one.get(),
+            self.table_instance.sem_two.get(),
+            self.table_instance.general.get(),
+            self.table_instance.comment.get())
+        if self.controller:
+            print(student_data)
+            self.controller.update_student(self.table_instance.id.get(), student_data)
+       
+       
+    def delete(self):
+        if self.controller:
+            self.controller.delete_student(self.table_instance.id.get())
